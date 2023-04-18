@@ -2,6 +2,7 @@
 
 namespace Codeages\Biz\Framework\Dao;
 
+use Codeages\Biz\Framework\Dao\SoftDelete\SoftDeletes;
 abstract class SoftDeleteDaoImpl extends AdvancedDaoImpl
 {
     use SoftDeletes;

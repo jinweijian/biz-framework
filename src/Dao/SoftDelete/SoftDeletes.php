@@ -1,6 +1,8 @@
 <?php
 
-namespace Codeages\Biz\Framework\Dao;
+namespace Codeages\Biz\Framework\Dao\SoftDelete;
+
+use Codeages\Biz\Framework\Dao\DaoException;
 
 trait SoftDeletes
 {
@@ -13,16 +15,11 @@ trait SoftDeletes
 
     protected $softDeleteField = 'is_deleted';
 
-    protected $softDeleteFieldType = FieldConstant::FIELD_TYPE_INT;
+    protected $softDeleteFieldType = SoftDeleteFieldConstant::FIELD_TYPE_INT;
 
-    protected $softDeleteFieldFormat = null;
+    protected $softDeletedAtField = 'deleted_time';
 
-    protected $softDeletedAtField = 'deleted_at';
-
-    protected $softDeletedAtFieldType = FieldConstant::FIELD_TYPE_TIMESTAMP_MS;
-
-    protected $softDeletedAtFieldFormat = null;
-
+    protected $softDeletedAtFieldType = SoftDeleteFieldConstant::FIELD_TYPE_TIMESTAMP_MS;
     /**
      * @return string
      */
@@ -37,22 +34,6 @@ trait SoftDeletes
     protected function setSoftDeletedAtField($softDeletedAtField)
     {
         $this->softDeletedAtField = (string)$softDeletedAtField;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSoftDeletedAtFieldFormat()
-    {
-        return $this->softDeletedAtFieldFormat;
-    }
-
-    /**
-     * @param string $softDeletedAtFieldFormat
-     */
-    protected function setSoftDeletedAtFieldFormat($softDeletedAtFieldFormat)
-    {
-        $this->softDeletedAtFieldFormat = (string)$softDeletedAtFieldFormat;
     }
 
     /**
@@ -83,22 +64,6 @@ trait SoftDeletes
         if (!is_null($this->originalEnableSoftDeleteStatus)) {
             $this->isEnableSoftDelete = $this->originalEnableSoftDeleteStatus;
         }
-    }
-
-    /**
-     * @return null | string
-     */
-    public function getSoftDeleteFieldFormat()
-    {
-        return $this->softDeleteFieldFormat;
-    }
-
-    /**
-     * @param null | string $softDeleteFieldFormat
-     */
-    protected function setSoftDeleteFieldFormat($softDeleteFieldFormat)
-    {
-        $this->softDeleteFieldFormat = (string)$softDeleteFieldFormat;
     }
 
     /**
@@ -156,7 +121,7 @@ trait SoftDeletes
     {
         $builder = parent::createQueryBuilder($conditions);
         if ($this->isEnableSoftDelete()) {
-            $builder->andStaticWhere(FieldConstant::getFieldIsFalseSql(
+            $builder->andStaticWhere(SoftDeleteFieldConstant::getFieldIsFalseSql(
                 $this->getSoftDeleteField(),
                 $this->getSoftDeleteFieldType()
             ));
@@ -212,7 +177,7 @@ trait SoftDeletes
     {
         $softDeleteSql = "";
         if ($this->isEnableSoftDelete()) {
-            $softDeleteSql = " AND " . FieldConstant::getFieldIsFalseSql(
+            $softDeleteSql = " AND " . SoftDeleteFieldConstant::getFieldIsFalseSql(
                     $this->getSoftDeleteField(),
                     $this->getSoftDeleteFieldType()
                 );
@@ -274,15 +239,12 @@ trait SoftDeletes
     protected function getSoftDeletedFields()
     {
         return [
-            $this->getSoftDeleteField() => FieldConstant::getFieldTrueValue(
-                $this->getSoftDeleteFieldType(),
-                $this->getSoftDeleteFieldFormat()
+            $this->getSoftDeleteField() => SoftDeleteFieldConstant::getFieldTrueValue(
+                $this->getSoftDeleteFieldType()
             ),
-            $this->getSoftDeletedAtField() => FieldConstant::getFieldTrueValue(
-                $this->getSoftDeletedAtFieldType(),
-                $this->getSoftDeletedAtFieldFormat()
+            $this->getSoftDeletedAtField() => SoftDeleteFieldConstant::getFieldTrueValue(
+                $this->getSoftDeletedAtFieldType()
             )
-
         ];
     }
 }
